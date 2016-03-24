@@ -4,4 +4,4 @@ After looking into some projects online, I think the best granularity is zipcode
 
 
 ## crime couts
-The final result is in \crimedata\crime counts.csv. If you want to repreduce the result, please run *crime_clean.R* first to get the cleaned crime data and the run *crime-zip.R*.
+The final result is in **\crimedata\crime counts.csv**. If you want to repreduce the result, please run **crime_clean.R** first to get the cleaned crime data and the run **crime-zip.R**.
