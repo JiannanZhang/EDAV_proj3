@@ -22,35 +22,52 @@ shinyServer(function(input, output, session) {
         })
         
         # Filter crime data
-        cdata <- reactive({
-                if (input$complain == ''){
-                        t <- data_2015_top5
-                        return(t)
+        comdata <- reactive({
+                draw <- data_2015_top5
+                if (input$complain != ''){
+                        t <- filter(draw, Complaint_Type==input$complain)
+                        draw <- t
                 }
-                else{
-                        t <- data_2015_top5[which(data_2015_top5$Complaint_Type==input$complain), ]
-                        return(t)
-                }})
+                return(draw)
+        })
         
-        
+        cridata <- reactive({
+                draw <- crime
+                if (input$crime != '') {
+                        t <- filter(draw, Offense == input$crime)
+                        draw <- t
+                }
+                
+                return(draw)
+        }) 
         
         observe({  
                 pal1 <- colorFactor(palette()[2:6], levels(data_2015_top5$Complaint_Type))
+                pal2 <- colorFactor(palette()[-1], levels(crime$Offense))
                 Radius1 <- 2
-                if (length(as.matrix(cdata())) != 0){
+                if (input$`Map Type`=="complain data"&length(as.matrix(comdata())) != 0){
                         leafletProxy("map") %>%
                                 clearMarkers() %>%
                                 # addPolylines(lng=c(a$lon,a$lon1),lat=c(a$lat,a$lat1),color="red") %>%
                                 #addMarkers(data = ttype(), ~Long, ~Lat, icon = restroomIcon(), options = markerOptions(opacity = 0.9), popup = ~Name) %>%
-                                addCircleMarkers(data = cdata(), ~Long, ~Lat, radius = Radius1, stroke = FALSE, fillOpacity = 0.7, fillColor = pal1(cdata()[["Complaint_Type"]])) %>%
-                                addLegend("bottomleft", pal=pal1, values=cdata()[["Complaint_Type"]], title="complain",
+                                        addCircleMarkers(data = comdata(), ~Long, ~Lat, radius = Radius1, stroke = FALSE, fillOpacity = 0.7, fillColor = pal1(comdata()[["Complaint_Type"]])) %>%
+                                        addLegend("bottomleft", pal=pal1, values=comdata()[["Complaint_Type"]], title="complain",
                                           layerId="colorLegend")
                 }
-                else {
-                        
+                if (input$`Map Type`=="crime data"&length(as.matrix(cridata())) != 0){
                         leafletProxy("map") %>%
-                                clearMarkers() 
+                                clearMarkers() %>%
+                                # addPolylines(lng=c(a$lon,a$lon1),lat=c(a$lat,a$lat1),color="red") %>%
+                                #addMarkers(data = ttype(), ~Long, ~Lat, icon = restroomIcon(), options = markerOptions(opacity = 0.9), popup = ~Name) %>%
+                                addCircleMarkers(data = cridata(), ~Long, ~Lat, radius = Radius1, stroke = FALSE, fillOpacity = 0.7, fillColor = pal2(cridata()[["Offense"]])) %>%
+                                addLegend("bottomleft", pal=pal2, values=cridata()[["Offense"]], title="Crime",
+                                          layerId="colorLegend")
                 }
+                if (length(as.matrix(cridata())) == 0|length(as.matrix(comdata())) == 0) {
+                        leafletProxy("map") %>%
+                                clearMarkers()
+                }
+                
         })
         
         output$heat_text = renderText({
@@ -70,21 +87,22 @@ shinyServer(function(input, output, session) {
         
         output$heatMap <- renderUI({
                 
-                if (input$complaintype == ''){
-                        hdata <- data_2015_top5
-                
-                }
-                else{
-                        hdata <- data_2015_top5[which(data_2015_top5$Complaint_Type==input$complaintype), ]
+                if (input$`Heatmap Type`=="complain data") {
+                        if (input$complaintype == ''){
+                                hdata <- data_2015_top5
+                                
+                        }
+                        else{
+                                hdata <- data_2015_top5[which(data_2015_top5$Complaint_Type==input$complaintype), ]
+                                
+                        }
                         
-                }
-                
-                
-                complainmap1 <- as.data.table(hdata)
-                complainmap2 <- complainmap1[(Lat != ""), .(count = .N), by=.(Lat, Long)]
-                j <- paste0("[",complainmap2[,Lat], ",", complainmap2[,Long], ",", complainmap2[,count], "]", collapse=",")
-                j <- paste0("[",j,"]")
-                tags$body(tags$script(HTML(sprintf("
+                        
+                        complainmap1 <- as.data.table(hdata)
+                        complainmap2 <- complainmap1[(Lat != ""), .(count = .N), by=.(Lat, Long)]
+                        j <- paste0("[",complainmap2[,Lat], ",", complainmap2[,Long], ",", complainmap2[,count], "]", collapse=",")
+                        j <- paste0("[",j,"]")
+                        tags$body(tags$script(HTML(sprintf("
                                 var addressPoints = %s
 if (typeof heat === typeof undefined) {
             heat = L.heatLayer(addressPoints)
@@ -94,7 +112,37 @@ if (typeof heat === typeof undefined) {
             heat.setLatLngs(addressPoints)
           }
                                          </script>"
-                                                   , j))))
+                                                           , j))))
+                }
+                
+                if (input$`Heatmap Type`=="crime data") {
+                        if (input$crimetype == ''){
+                                hdata <- crime
+                                
+                        }
+                        else{
+                                hdata <- crime[which(crime$Offense==input$crimetype), ]
+                                
+                        }
+                        
+                        
+                        crimemap1 <- as.data.table(hdata)
+                        crimemap2 <- crimemap1[(Lat != ""), .(count = .N), by=.(Lat, Long)]
+                        j <- paste0("[",crimemap2[,Lat], ",", crimemap2[,Long], ",", crimemap2[,count], "]", collapse=",")
+                        j <- paste0("[",j,"]")
+                        tags$body(tags$script(HTML(sprintf("
+                                var addressPoints = %s
+if (typeof heat === typeof undefined) {
+            heat = L.heatLayer(addressPoints)
+            heat.addTo(map)
+          } else {
+            heat.setOptions()
+            heat.setLatLngs(addressPoints)
+          }
+                                         </script>"
+                                                           , j))))
+                }
+                
                 
                 
         })

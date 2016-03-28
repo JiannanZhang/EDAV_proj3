@@ -7,9 +7,20 @@ complain_type <- c(
         "All" = "", "HEAT/HOT WATER"="HEAT/HOT WATER", "Street Condition"="Street Condition","Blocked Driveway"="Blocked Driveway","Illegal Parking"="Illegal Parking","UNSANITARY CONDITION"="UNSANITARY CONDITION"
 )
 
+crime_type <- c(
+        "All Crime" = "",
+        "Grand Larceny" = "GRAND LARCENY",
+        "Grand Larceny of Motor Vehicle" = "GRAND LARCENY OF MOTOR VEHICLE",
+        "Rape" = "RAPE",
+        "Murder" = "MURDER",
+        "Robbery" = "ROBBERY",
+        "Burglary" = "BURGLARY",
+        "Felony Assault" = "FELONY ASSAULT"
+)
+
 shinyUI(navbarPage("Complain", id="nav",
                    
-                   tabPanel("Complain Map",
+                   tabPanel("Interactive Map",
                             div(class="outer",
                                 
                                 tags$head(
@@ -25,9 +36,15 @@ shinyUI(navbarPage("Complain", id="nav",
                                               draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
                                               width = 330, height = "auto",
                                               
-                                              h2("Complain records"),
+                                              h2("Make your choices"),
                                               
-                                              selectInput("complain", "Show Just One type", complain_type, selected = "Blocked Driveway")
+                                              radioButtons("Map Type", "Interactive Map Type:",
+                                                           c("Complain" = "complain data",
+                                                             "Crime" = "crime data")),
+                                              
+                                              selectInput("complain", "Choose complaints type", complain_type, selected = ""),
+                                              selectInput("crime", "Choose crime type", crime_type, selected = "ROBBERY")
+                                              
                                               
                                               # Simple integer interval
                                          
@@ -47,7 +64,12 @@ shinyUI(navbarPage("Complain", id="nav",
                                           
                                           h2("Complain records"),
                                           
-                                          selectInput("complaintype", "Show Just One type", complain_type, selected = "Blocked Driveway")
+                                          radioButtons("Heatmap Type", "Heat Map Type:",
+                                                       c("Complain" = "complain data",
+                                                         "Crime" = "crime data")),
+                                          
+                                          selectInput("complaintype", "Choose complaints type", complain_type, selected = ""),
+                                          selectInput("crimetype", "Choose crime type", crime_type, selected = "ROBBERY")
                                           
                                           # Simple integer interval
                                           
