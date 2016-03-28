@@ -1,59 +1,88 @@
-# google API
+setwd("C:/Users/oweni/OneDrive/Documents/GitHub/EDAV_proj3/crimedata")
+
+#################################################
+library(maptools)
+zip.map <- readShapeSpatial("maps/tl_2010_36_zcta510.shp")
+zips = read.csv("zip_map.csv")
+# select the zip codes in NYC
+ny.zip = zip.map[zip.map@data$ZCTA5CE10 %in% zips$ZIP.CODE,]
+
+# convert crime cord to sp data
+crime_df <- structure(list(longitude = crime$Long, latitude = crime$Lat),
+                           .Names = c("longitude","latitude"), class = "data.frame",row.names =c(NA,-74098L))
+xy <- crime_df[,c(1,2)]
+crime_sp <- SpatialPointsDataFrame(coords = xy, data = crime_df,
+                               proj4string = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0"))
+
+proj4string(ny.zip) = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0")
+proj4string(ny.zip)
+# [1] " +proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0"
+proj4string(crime_sp)
+# [1] " +proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0"
+
+plot(ny.zip)
+plot(crime_sp, col="red" , add=TRUE)
+res = over(ny.zip, crime_sp)
+
+
+require(GISTools)
+counts = poly.counts(crime_sp,ny.zip)
+
+
 library("ggmap")
+res$zip = 0
 
-# generate a single example address
-lonlat_sample <- as.numeric(geocode("the hollyood bowl"))
-lonlat_sample  # note the order is longitude, latitiude
-
-res <- revgeocode(lonlat_sample, output="more")
-# can then access zip and neighborhood where populated
-res$postal_code
-res$neighborhood
-
-crime$zip = 0
-
-sample = crime
-
-for(i in 1:dim(sample)[1]){
-  res = revgeocode(c(sample[i,]$Long,sample[i,]$Lat), output="more")
-  sample[i,]$zip = as.numeric(as.character(res$postal_code))
+for(i in 1:dim(res)[1]){
+  if(!is.na(res[i,1])){
+    re = revgeocode(c(res$longitude[i],res$latitude[i]), output="more")
+    res[i,]$zip = as.numeric(as.character(re$postal_code))
+  }
 }
 
-setwd("C:\\Columbia Courses\\Visualization\\crimedata")
 
-library(maptools)
-##substitute your shapefiles here
-state.map <- readShapeSpatial("maps/st24_d00.shp")
-zip.map <- readShapeSpatial("maps/zt24_d00.shp")
-## this is the variable we will be plotting
-zip.map@data$noise <- rnorm(nrow(zip.map@data))
-## put the lab point x y locations of the zip codes in the data frame for easy retrieval
-labelpos <- data.frame(do.call(rbind, lapply(zip.map@polygons, function(x) x@labpt)))
-names(labelpos) <- c("x","y")                        
-zip.map@data <- data.frame(zip.map@data, labelpos)
+# count = counts
+for(i in 1:length(counts)){
+  names(counts)[i] = res[names(counts)[i],]$zip
+}
+
+df = data.frame(zip = names(counts), cnt = counts)
+
+write.csv(df,"crime counts.csv",row.names = F)
+
+####################################
+# transportation
+
+metro = read.csv("metro_data.csv")
+
+# convert metro cord to sp data
+metro_df <- structure(list(longitude = metro$long, latitude = metro$lat),
+                      .Names = c("longitude","latitude"), class = "data.frame",row.names =c(NA,-1904L))
+xy <- metro_df[,c(1,2)]
+metro_sp <- SpatialPointsDataFrame(coords = xy, data = metro_df,
+                                   proj4string = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0"))
 
 
-# raster
-library("raster")
 
-x <- getData('GADM', country='USA', level=1)
-class(x)
-# [1] "SpatialPolygonsDataFrame"
-# attr(,"package")
-# [1] "sp"
+plot(ny.zip)
+plot(metro_sp, col="red" , add=TRUE)
+res = over(ny.zip, metro_sp)
 
-set.seed(1)
-# sample random points
-p <- spsample(x, n=300, type="random")
-p <- SpatialPointsDataFrame(p, data.frame(id=1:300))
+for(i in 1:dim(res)[1]){
+  if(!is.na(res[i,1])){
+    re = revgeocode(c(res$longitude[i],res$latitude[i]), output="more")
+    res[i,]$zip = as.numeric(as.character(re$postal_code))
+  }
+}
 
-proj4string(x)
-# [1] " +proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0"
-proj4string(p)
-# [1] " +proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0"
+counts = poly.counts(metro_sp,ny.zip)
+# count = counts
+for(i in 1:length(counts)){
+  names(counts)[i] = res[names(counts)[i],]$zip
+}
 
-plot(x)
-plot(p, col="red" , add=TRUE)
+df = data.frame(zip = names(counts), cnt = counts)
+df = df[df$cnt>0,]
 
-res <- over(p, x)
-table(res$NAME_1)
+write.csv(df,"metro counts.csv",row.names = F)
+
+###################################
