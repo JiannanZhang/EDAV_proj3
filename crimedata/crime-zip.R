@@ -86,3 +86,9 @@ df = df[df$cnt>0,]
 write.csv(df,"metro counts.csv",row.names = F)
 
 ###################################
+# zip-long-lat mapping
+zip_mapping = data.frame(zip_code = as.numeric(as.character(ny.zip@data$ZCTA5CE10)),
+                         long = as.numeric(as.character(ny.zip@data$INTPTLON10)),
+                         lat = as.numeric(as.character(ny.zip@data$INTPTLAT10)))
+
+write.csv(zip_mapping,"zip_mapping.csv",row.names = F)
