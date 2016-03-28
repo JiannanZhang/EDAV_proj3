@@ -149,5 +149,43 @@ if (typeof heat === typeof undefined) {
                 p
         })
         
+        output$zipmaps <- renderImage({
+                safe <- filter(plot_data, security == input$safety)
+                #trans <- filter(plot_data, metro_convenience == input$transportation)
+                safe_plot <- zip.map[zip.map@data$ZCTA5CE10 %in% safe$zip_code, ]
+                safe_data <- fortify(safe_plot)
+                
+                outfile <- tempfile(fileext='.png')
+                
+                # Generate the PNG
+                png(outfile, width=400, height=300)
+                qmap(center, zoom = 12, maptype = 'roadmap') +
+                        geom_polygon(aes(x = long, y = lat, group = group), data = safe_data,
+                                     colour = 'white', fill = 'black', alpha = .4, size = .3)
+                
+                dev.off()
+                
+                # Return a list containing the filename
+                list(src = outfile,
+                     contentType = 'image/png',
+                     width = 400,
+                     height = 300,
+                     alt = "This is alternate text")
+        }, deleteFile = TRUE)
+        
+        
+        output$zipmapt <- renderPlotly({
+                #safe <- filter(plot_data, security == input$safety)
+                trans <- filter(plot_data, metro_convenience == input$transportation)
+                trans_plot <- zip.map[zip.map@data$ZCTA5CE10 %in% trans$zip_code, ]
+                trans_data <- fortify(trans_plot)
+                
+                
+                transmap <- qmap(center, zoom = 12, maptype = 'roadmap') +
+                        geom_polygon(aes(x = long, y = lat, group = group), data = trans_data,
+                                     colour = 'white', fill = 'red', alpha = .4, size = .3)
+                p2 <- ggplotly(transmap)
+                p2
+        })
         
 })

@@ -116,9 +116,22 @@ shinyUI(navbarPage("Group 16", id="nav",
                    
                    
                    
-                   tabPanel("Plots",br(),tags$div(class="descrip_text",
+                   tabPanel("Trellis Plot",br(),tags$div(class="descrip_text",
                                                               textOutput("trellis_text")), br(),
                             plotlyOutput("trellis", width="700px"),
+                            
+                            #leafletOutput("baseMap"),
+                            value=1
+                   ),
+                   
+                   tabPanel("Results",br(),tags$div(class="descrip_text",
+                                                  textOutput("results")), br(),
+                            imageOutput("zipmaps", width="700px"),
+                            plotlyOutput("zipmapt", width="700px"),
+                            radioButtons("safety", "Safety(in dark):", 
+                                         c("safe"="safe", "intermediate"="intermediate", "unsafe"="unsafe")),
+                            radioButtons("transportation", "Transportation(in red):", 
+                                         c("convenient"="convenient", "intermediate"="intermediate", "inconvenient"="inconvenient")),
                             
                             #leafletOutput("baseMap"),
                             value=1
