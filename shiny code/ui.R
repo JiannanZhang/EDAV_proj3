@@ -18,9 +18,9 @@ crime_type <- c(
         "Felony Assault" = "FELONY ASSAULT"
 )
 
-shinyUI(navbarPage("Complain", id="nav",
+shinyUI(navbarPage("Group 16", id="nav",
                    
-                   tabPanel("Interactive Map",
+                   tabPanel("Interactive Map_Complain",
                             div(class="outer",
                                 
                                 tags$head(
@@ -38,12 +38,12 @@ shinyUI(navbarPage("Complain", id="nav",
                                               
                                               h2("Make your choices"),
                                               
-                                              radioButtons("Map Type", "Interactive Map Type:",
-                                                           c("Complain" = "complain data",
-                                                             "Crime" = "crime data")),
+                                              #radioButtons("Map Type", "Interactive Map Type:",
+                                              #             c("Complain" = "complain data",
+                                              #               "Crime" = "crime data")),
                                               
-                                              selectInput("complain", "Choose complaints type", complain_type, selected = ""),
-                                              selectInput("crime", "Choose crime type", crime_type, selected = "ROBBERY")
+                                              selectInput("complain", "Choose complaints type", complain_type, selected = "HEAT/HOT WATER")
+                                              #selectInput("crime", "Choose crime type", crime_type, selected = "ROBBERY")
                                               
                                               
                                               # Simple integer interval
@@ -55,7 +55,42 @@ shinyUI(navbarPage("Complain", id="nav",
                             )
                    ),
                    
-                   tabPanel("Heat Map",br(),tags$div(class="descrip_text",
+                   tabPanel("Interactive Map_Crime",
+                            div(class="outer",
+                                
+                                tags$head(
+                                        # Include our custom CSS
+                                        includeCSS("styles.css"),
+                                        includeScript("gomap.js")
+                                ),
+                                
+                                leafletOutput("mapc", width="100%", height="100%"),
+                                
+                                # Shiny versions prior to 0.11 should use class="modal" instead.
+                                absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
+                                              draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
+                                              width = 330, height = "auto",
+                                              
+                                              h2("Make your choices"),
+                                              
+                                              #radioButtons("Map Type", "Interactive Map Type:",
+                                              #             c("Complain" = "complain data",
+                                              #               "Crime" = "crime data")),
+                                              
+                                              #selectInput("complain", "Choose complaints type", complain_type, selected = "HEAT/HOT WATER")
+                                              selectInput("crime", "Choose crime type", crime_type, selected = "GRAND LARCENY OF MOTOR VEHICLE")
+                                              
+                                              
+                                              # Simple integer interval
+                                              
+                                              #sliderInput("range", "Price Range:",
+                                              #            min = 0, max = 10000, value = c(200,500)),
+                                              #helpText("Choose the range of price")
+                                )
+                            )
+                   ),
+                   
+                   tabPanel("Heat Map_Complain",br(),tags$div(class="descrip_text",
                                                               textOutput("heat_text")), br(),
                             chartOutput("baseMap", "leaflet"),
                             absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
@@ -64,12 +99,8 @@ shinyUI(navbarPage("Complain", id="nav",
                                           
                                           h2("Complain records"),
                                           
-                                          radioButtons("Heatmap Type", "Heat Map Type:",
-                                                       c("Complain" = "complain data",
-                                                         "Crime" = "crime data")),
                                           
-                                          selectInput("complaintype", "Choose complaints type", complain_type, selected = ""),
-                                          selectInput("crimetype", "Choose crime type", crime_type, selected = "ROBBERY")
+                                          selectInput("complaintype", "Choose complaints type", complain_type, selected = "Blocked Driveway")
                                           
                                           # Simple integer interval
                                           
@@ -82,6 +113,8 @@ shinyUI(navbarPage("Complain", id="nav",
                             tags$head(tags$script(src="https://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js")),
                             uiOutput('heatMap'),value=2
                    ),
+                   
+                   
                    
                    tabPanel("Plots",br(),tags$div(class="descrip_text",
                                                               textOutput("trellis_text")), br(),
