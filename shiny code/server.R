@@ -149,43 +149,100 @@ if (typeof heat === typeof undefined) {
                 p
         })
         
-        output$zipmaps <- renderImage({
-                safe <- filter(plot_data, security == input$safety)
-                #trans <- filter(plot_data, metro_convenience == input$transportation)
-                safe_plot <- zip.map[zip.map@data$ZCTA5CE10 %in% safe$zip_code, ]
-                safe_data <- fortify(safe_plot)
-                
-                outfile <- tempfile(fileext='.png')
-                
-                # Generate the PNG
-                png(outfile, width=400, height=300)
-                qmap(center, zoom = 12, maptype = 'roadmap') +
-                        geom_polygon(aes(x = long, y = lat, group = group), data = safe_data,
-                                     colour = 'white', fill = 'black', alpha = .4, size = .3)
-                
-                dev.off()
-                
-                # Return a list containing the filename
-                list(src = outfile,
-                     contentType = 'image/png',
-                     width = 400,
-                     height = 300,
-                     alt = "This is alternate text")
-        }, deleteFile = TRUE)
+        # output$zipmaps <- renderImage({
+        #         safe <- filter(plot_data, security == input$safety)
+        #         #trans <- filter(plot_data, metro_convenience == input$transportation)
+        #         safe_plot <- zip.map[zip.map@data$ZCTA5CE10 %in% safe$zip_code, ]
+        #         safe_data <- fortify(safe_plot)
+        #         
+        #         outfile <- tempfile(fileext='.png')
+        #         
+        #         # Generate the PNG
+        #         png(outfile, width=400, height=300)
+        #         qmap(center, zoom = 12, maptype = 'roadmap') +
+        #                 geom_polygon(aes(x = long, y = lat, group = group), data = safe_data,
+        #                              colour = 'white', fill = 'black', alpha = .4, size = .3)
+        #         
+        #         dev.off()
+        #         
+        #         # Return a list containing the filename
+        #         list(src = outfile,
+        #              contentType = 'image/png',
+        #              width = 400,
+        #              height = 300,
+        #              alt = "This is alternate text")
+        # }, deleteFile = TRUE)
         
         
-        output$zipmapt <- renderPlotly({
+        output$transportation <- renderPlotly({
                 #safe <- filter(plot_data, security == input$safety)
-                trans <- filter(plot_data, metro_convenience == input$transportation)
-                trans_plot <- zip.map[zip.map@data$ZCTA5CE10 %in% trans$zip_code, ]
-                trans_data <- fortify(trans_plot)
+                #trans <- filter(plot_data, metro_convenience == input$transportation)
+                #trans_plot <- zip.map[zip.map@data$ZCTA5CE10 %in% trans$zip_code, ]
+                #trans_data <- fortify(trans_plot)
                 
                 
-                transmap <- qmap(center, zoom = 12, maptype = 'roadmap') +
-                        geom_polygon(aes(x = long, y = lat, group = group), data = trans_data,
-                                     colour = 'white', fill = 'red', alpha = .4, size = .3)
-                p2 <- ggplotly(transmap)
-                p2
+                trans_data <- plot_data[ , c(1,6)]
+                colnames(trans_data) <- c("region", "value")
+                trans_data$region <- as.character(trans_data$region)
+                transmap <- zip_choropleth(trans_data,
+                                         zip_zoom = trans_data$region,
+                                         title="New York City Transportation",
+                                         legend="Transportation")
+                transmap
+                
+                
         })
+        
+        output$crime_rate <- renderPlotly({
+                cr_data <- plot_data[ , c(1,8)]
+                colnames(cr_data) <- c("region", "value")
+                cr_data$region <- as.character(cr_data$region)
+                crmap <- zip_choropleth(cr_data,
+                                           zip_zoom = cr_data$region,
+                                           title="New York City Crime Rate",
+                                           legend="Crime Rate")
+                crmap
+                
+        })
+        
+        output$housing_price <- renderPlotly({
+                hp_data <- plot_data[ , c(1,4)]
+                colnames(hp_data) <- c("region", "value")
+                hp_data$region <- as.character(hp_data$region)
+                hpmap <- zip_choropleth(hp_data,
+                                           zip_zoom = hp_data$region,
+                                           title="New York City Housing Price",
+                                           legend="Housing Price")
+                hpmap
+                
+        })
+        
+        output$income <- renderPlotly({
+                income_data <- plot_data[ , c(1,3)]
+                colnames(income_data) <- c("region", "value")
+                income_data$region <- as.character(income_data$region)
+                incomemap <- zip_choropleth(income_data,
+                                           zip_zoom = income_data$region,
+                                           title="New York City Income",
+                                           legend="Income")
+                incomemap
+                
+        })
+        
+        output$population <- renderPlotly({
+                pop_data <- plot_data[ , c(1,2)]
+                colnames(pop_data) <- c("region", "value")
+                pop_data$region <- as.character(pop_data$region)
+                popmap <- zip_choropleth(pop_data,
+                                           zip_zoom = pop_data$region,
+                                           title="New York City Population",
+                                           legend="Population")
+                popmap
+                
+        })
+        
+        
+        
+        
         
 })

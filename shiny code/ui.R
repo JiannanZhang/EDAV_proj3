@@ -126,12 +126,17 @@ shinyUI(navbarPage("Group 16", id="nav",
                    
                    tabPanel("Results",br(),tags$div(class="descrip_text",
                                                   textOutput("results")), br(),
-                            imageOutput("zipmaps", width="700px"),
-                            plotlyOutput("zipmapt", width="700px"),
-                            radioButtons("safety", "Safety(in dark):", 
-                                         c("safe"="safe", "intermediate"="intermediate", "unsafe"="unsafe")),
-                            radioButtons("transportation", "Transportation(in red):", 
-                                         c("convenient"="convenient", "intermediate"="intermediate", "inconvenient"="inconvenient")),
+                            
+                            #radioButtons("safety", "Safety(in dark):", 
+                            #             c("safe"="safe", "intermediate"="intermediate", "unsafe"="unsafe")),
+                            #radioButtons("transportation", "Transportation(in red):", 
+                            #             c("convenient"="convenient", "intermediate"="intermediate", "inconvenient"="inconvenient")),
+                            #imageOutput("zipmaps", width="700px"),
+                            plotlyOutput("population", width="700px"),
+                            plotlyOutput("income", width="700px"),
+                            plotlyOutput("housing_price", width="700px"),
+                            plotlyOutput("crime_rate", width="700px"),
+                            plotlyOutput("transportation", width="700px"),
                             
                             #leafletOutput("baseMap"),
                             value=1
