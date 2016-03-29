@@ -1,0 +1,19 @@
+RegionName,Type,Room,Price
+Queens,Value,1B,278000
+New York,Value,1B,955900
+Bronx,Value,1B,121400
+Staten Island,Value,1B,211900
+Brooklyn,Value,2B,714100
+Queens,Value,2B,390200
+New York,Value,2B,1873200
+Staten Island,Value,2B,307500
+Brooklyn,Value,3B,597900
+Queens,Value,3B,547600
+New York,Value,3B,3498200
+Bronx,Value,3B,381400
+Staten Island,Value,3B,418400
+Brooklyn,Value,4B,790100
+Queens,Value,4B,656400
+New York,Value,4B,5219500
+Bronx,Value,4B,415500
+Staten Island,Value,4B,548400

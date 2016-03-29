@@ -1,0 +1,19 @@
+RegionName,Type,Room,Price
+Brooklyn,Rent,1B,2100
+Queens,Rent,1B,1845
+New York,Rent,1B,3200
+Bronx,Rent,1B,1350
+Staten Island,Rent,1B,1200
+Brooklyn,Rent,2B,2475
+Queens,Rent,2B,2275
+New York,Rent,2B,3975
+Bronx,Rent,2B,1650
+Staten Island,Rent,2B,1600
+Brooklyn,Rent,3B,2800
+Queens,Rent,3B,2500
+New York,Rent,3B,4900
+Bronx,Rent,3B,1995
+Brooklyn,Rent,4B,3560
+Queens,Rent,4B,3000
+New York,Rent,4B,5947.5
+Bronx,Rent,4B,2243
