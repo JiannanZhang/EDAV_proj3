@@ -1,0 +1,443 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<!-- <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js'></script> -->  
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script> -->
+<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"> -->
+  <!-- <script src="//code.jquery.com/jquery-1.10.2.js"></script> -->
+  <!-- <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script> -->
+  <!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
+  <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"> -->
+
+</head>
+<body>
+<h1 style=' text-align: center;'> Where to live in NYC?</h1>
+<div id="map" >
+</div>
+<p>
+  Complains:
+  <input type="text" id="complains" readonly style="border:0; color:#f6931f; font-weight:bold;">
+</p>
+<div id="complains-range"></div> <br/>
+<p>
+    Population:
+  <input type="text" id="population" readonly style="border:0; color:#f6931f; font-weight:bold;">
+  </p>
+ 
+<div id="population-range"></div>
+
+<div > Transportation: 
+            <button type="button" class="btn btn-default btn-trans  inactive" value="convenient">convenient</button>
+            <button type="button" class="btn btn-default btn-trans  active" value="intermediate">intermediate</button>
+            <button type="button" class="btn btn-default btn-trans  active" value="inconvenient">inconvenient</button>
+          </div>
+<div > Security:
+            <button type="button" class="btn btn-default btn-sec  inactive" value="convenient">safe</button>
+            <button type="button" class="btn btn-default btn-sec  active" value="intermediate">intermediate</button>
+            <button type="button" class="btn btn-default btn-sec  active" value="inconvenient">unsafe</button>
+          </div>
+<p>
+    Price:
+  <input type="text" id="price" readonly style="border:0; color:#f6931f; font-weight:bold;">
+  </p>
+ 
+<div id="price-range"></div>
+<!-- <script>
+  $(function() {
+
+      
+    $( "#complains-range" ).slider({
+      range: true,
+      min: 1,
+      max: 1167,
+      values: [ 75, 300 ],
+      slide: function( event, ui ) {
+        $( "#complains" ).val( "" + ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+      }
+    });
+
+    $( "#complains" ).val( "" + $( "#complains-range" ).slider( "values", 0 ) +
+      " - " + $( "#complains-range" ).slider( "values", 1 ) );
+      
+      
+    $( "#population-range" ).slider({
+      range: true,
+      min: 1806,
+      max: 109931,
+      values: [ 7500, 30000 ],
+      slide: function( event, ui ) {
+        $( "#population" ).val( "" + ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+      }
+    });
+    $( "#population" ).val( "" + $( "#population-range" ).slider( "values", 0 ) +
+      " - " + $( "#population-range" ).slider( "values", 1 ) );
+  
+   $( "#transportation-range" ).slider({
+      range: true,
+      min: 0,
+      max: 2,
+      values: [ 0, 1 ],
+      slide: function( event, ui ) {
+        $( "#transportation" ).val( "" + ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+      }
+    });
+    
+    $( "#transportation" ).val( "" + $( "#transportation-range" ).slider( "values", 0 ) +
+      " - " + $( "#transportation-range" ).slider( "values", 1 ) );
+  
+      
+    $( "#price-range" ).slider({
+      range: true,
+      min: 160,
+      max: 1980,
+      values: [ 500, 1200 ],
+      slide: function( event, ui ) {
+        $( "#price" ).val( "" + ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+      }
+    });
+    $( "#price" ).val( "" + $( "#price-range" ).slider( "values", 0 ) +
+      " - " + $( "#price-range" ).slider( "values", 1 ) );
+      
+      
+      $( "#complains-range" ).on( "slidechange", function( event, ui ) {
+          var comp = comp = ui.values;
+          var pop = $( "#population-range" ).slider( "value" );
+          var trans = ['convenient','intermediate','inconvenient'];
+          var sec = ['safe', 'intermediate','unsafe'];
+          var price = $( "#price-range" ).slider( "value" );
+        
+        
+        update(comp, pop, trans, sec, price);
+      } );
+      
+      $( "#population-range" ).on( "slidechange", function( event, ui ) {
+          var comp =  $( "#complains-range" ).slider( "value" );
+          var pop = ui.values;
+          var trans = ['convenient','intermediate','inconvenient'];
+          var sec = ['safe', 'intermediate','unsafe'];
+          var price = $( "#price-range" ).slider( "value" );
+      update(comp, pop, trans, sec, price);
+      } );
+      
+      $( "#price-range" ).on( "slidechange", function( event, ui ) {
+          var comp =  $( "#complains-range" ).slider( "value" );
+          var pop = $( "#population-range" ).slider( "value" );
+          var trans = ['convenient','intermediate','inconvenient'];
+          var sec = ['safe', 'intermediate','unsafe'];
+          var price = ui.values;
+      update(comp, pop, trans, sec, price);
+      } );
+      
+  });
+  </script> -->
+
+  <!-- <script>
+  var org_data;
+  // A magic function to add csv data into your geojson
+  // pass it four things:
+  // your geojson data
+  // your csv data
+  // the name of the common column in your JSON properties (i.e. state_name)
+  // the name of the common column in your CSV data (i.e. state)
+  function combineData(geojson_data, csv_data, geojson_key, csv_key) {
+    geojson_data['features'].forEach( function(d_json) {
+      csv_data.forEach( function(d_csv) {
+        if(d_json['properties'][geojson_key] == d_csv[csv_key]) { Object.keys(d_csv).forEach( function(key) { d_json['properties'][key] = d_csv[key]; }); }
+      });
+    });
+  }
+  
+  /*
+    PAY ATTENTION TO THIS!!!!
+    It's a call to d3.json INSIDE OF a d3.csv.
+    This is NOT the way you're supposed to do it...
+      ...but it's the way we're going to do it.
+  */
+
+  // Read in the GeoJSON and the CSV, then run the function
+  // queue says, 'hey, we gotta load in two files'
+  // the first one please read it with d3.json
+  // the second one please read it with d3.csv
+  // then run whatever is in .await
+  queue()
+    .defer(d3.json, "nycdata.json")
+    .defer(d3.csv, "city_data_clean.csv")
+    .await( function(error, data, csv_data) {
+      // this is run when both files are finished being read in
+      // error is any errors that cropped up
+      // data is your shapes
+      // csv_data is your csv data
+      console.log(data)
+      console.log(data['features'].length);
+      console.log(csv_data.length);
+
+      console.log("Doesn't have the added data yet, properties look like:");
+      console.log(data['features'][100]['properties']);
+
+      console.log(csv_data[0]);
+      
+
+      // call this magic function that adds the csv_data to the json
+      // MAKE SURE THEY HAVE A COLUMN IN COMMON
+      // state_name is a property inside of data (the geojson file)
+      // state is a column inside of the csv
+      combineData(data, csv_data, "postalCode", "zip_code");
+
+      // Now your 'data' elements have the info from the csv file
+      // inside of their properties
+    
+      console.log("Has the added data now, properties look like:");
+      console.log(data['features'][0]['properties']);
+      //"zip_code","population","price","metro","avg_income","crime_rate","Borough","metro_convenience","security","complain"
+      //10001,21102,1663,45,83.62515401,0.050943039,"Manhattan","convenient","safe",153
+
+      org_data = data;
+      var comp = [1,1167];
+      var pop = [1806,109931];
+      var trans = ['convenient','intermediate','inconvenient'];
+      var sec = ['safe','intermediate','unsafe'];
+      var price = [160,1980];
+      var new_data = get_updated_data(data['features'], comp, pop, trans, sec, price );
+
+      
+      console.log(new_data);
+      
+      var svg_height = 800, svg_width = 1100;
+      var margins = 10;
+      var height = svg_height - margins * 2;
+      var width = svg_width - margins * 2;
+
+
+      var svg = d3.select("#map")
+                  .append('svg')
+                  .attr('height',svg_height)
+                  .attr('width',svg_width);
+
+      // Map 1
+      var map = svg.append('g').attr('transform',"translate(" + margins + "," + margins + ")");
+
+      // max sex ratio, max female ratio
+
+      var color_scale = d3.scale.linear().domain([50,100,200]).range(['red','beige','blue']);
+
+      var projection = d3.geo.mercator()
+        .translate([width / 2,height / 2])
+        .center([-73.9912, 40.7106])
+        .scale(65000);
+
+      var path = d3.geo.path().projection(projection);
+
+      map.selectAll('path')
+        .data(new_data)
+        .enter()
+        .append('path')
+        .attr('d', path)
+        .style('fill', function(d) {
+          if (d['properties']['show'] == 1) {
+            return 'pink';
+          }
+          //if(d['properties']['zip_code'] == '10040') console.log('AZAM');
+          else if(d['properties']['show'] == 0) {
+          
+            return 'gray';
+          }
+          else return 'white';
+          
+        })
+        
+        .style('opacity',0.85)
+        .on('mouseover', function(d) {
+          //d3.select(this).transition().style('fill','green');
+          d3.select('.tooltip')
+          .style('visibility','visible')
+          .style('top', d3.event.pageY+10 + 'px')
+          .style('left', d3.event.pageX+10 + 'px')
+          .html(d['properties']['Geography']+'<br /># of men per 100 women: ' +
+            d['properties']['SexRatio'])
+          .transition().style('opacity', .9);
+        })
+        .on('mouseout', function(d) {
+          d3.select(this).transition();
+          d3.select('.tooltip')
+          .style('visibility','hidden')
+          .transition().style('opacity', 0);
+        });
+
+  });
+  
+  
+  function get_updated_data(data, comp, pop, trans, sec, price)
+  {
+    
+    
+    for (var i=0; i < data.length; i++) {
+      val = true;
+      if(data[i]['properties']['zip_code'] === undefined) continue;
+      console.log('inside for loop');
+      //console.log(data[i]['properties']['zip_code']);
+      console.log(data[i]['properties']);
+      if( (parseInt(data[i]['properties']['complain']) < comp[0]) || (parseInt(data[i]['properties']['complain']) > comp[1]))
+      {
+        val = false;
+        console.log('complain');
+      }
+      if( (parseInt(data[i]['properties']['population']) < pop[0]) || (parseInt(data[i]['properties']['population']) > pop[1]))
+      {
+        val = false;
+        console.log('pop');
+      }
+      if( trans.indexOf(String(data[i]['properties']['metro_convenience'])) == -1)
+      {
+        val = false;
+        console.log('conv');
+      }
+      if( sec.indexOf(String(data[i]['properties']['security'])) == -1)
+      {
+        val = false;
+        console.log('sec');
+      }
+      if( (parseInt(data[i]['properties']['price']) < price[0]) || (parseInt(data[i]['properties']['complain']) > price[1]) )
+      {
+        if(parseInt(data[i]['properties']['price']) != -1 )
+          {
+            val = false;
+            console.log('price');
+        }
+      }
+      if(val) data[i]['properties']['show'] = 1;
+      else data[i]['properties']['show'] = 0;
+      
+    }
+    return data;
+  }
+  
+function update (comp, pop, trans, sec, price)
+  {
+    var new_data = get_updated_data(org_data['features'], comp, pop, trans, sec, price );
+    
+      var svg_height = 800, svg_width = 1100;
+      var margins = 10;
+      var height = svg_height - margins * 2;
+      var width = svg_width - margins * 2;
+      
+      var projection = d3.geo.mercator()
+        .translate([width / 2,height / 2])
+        .center([-73.9912, 40.7106])
+        .scale(65000);
+        
+      var svg = d3.select("#map")
+                  .select('svg')
+
+      var path = d3.geo.path().projection(projection);
+      var map = svg.select('g');
+
+
+      map.selectAll('path')
+        .data(new_data)
+        //.enter()
+        //.append('path')
+        .attr('d', path)
+        .style('fill', function(d) {
+          if (d['properties']['show'] == 1) {
+            return 'pink';
+          }
+          //if(d['properties']['zip_code'] == '10040') console.log('AZAM');
+          else if(d['properties']['show'] == 0) {
+          
+            return 'gray';
+          }
+          else return 'white';
+          
+        })
+        
+        .style('opacity',0.85)
+        .on('mouseover', function(d) {
+          //d3.select(this).transition().style('fill','green');
+          d3.select('.tooltip')
+          .style('visibility','visible')
+          .style('top', d3.event.pageY+10 + 'px')
+          .style('left', d3.event.pageX+10 + 'px')
+          .html(d['properties']['Geography']+'<br /># of men per 100 women: ' +
+            d['properties']['SexRatio'])
+          .transition().style('opacity', .9);
+        })
+        .on('mouseout', function(d) {
+          d3.select(this).transition();
+          d3.select('.tooltip')
+          .style('visibility','hidden')
+          .transition().style('opacity', 0);
+        });
+    
+  }
+  
+  $(document).ready(function() {
+
+    // Transportation selector
+    $('.btn-trans').click(function() {
+      
+          var comp =  $( "#complains-range" ).slider( "value" );
+          var pop = $( "#population-range" ).slider( "value" );
+          var trans = ['intermediate'];
+          var sec = ['safe', 'intermediate','unsafe'];
+          var price = $( "#price-range" ).slider( "value" );
+      if ($(this).hasClass('active')) {
+        $(this).removeClass('active');
+        $(this).addClass('inactive');
+      }
+      else {
+        $(this).removeClass('inactive');
+        $(this).addClass('active');
+      }
+        update(comp, pop, trans, sec, price);
+      
+    });
+    
+    
+    // Sec selector
+    $('.btn-sec').click(function() {
+      
+          var comp =  $( "#complains-range" ).slider( "value" );
+          var pop = $( "#population-range" ).slider( "value" );
+          var trans = ['convenient','intermediate','inconvenient'];
+          var sec = ['safe', 'intermediate'];
+          var price = $( "#price-range" ).slider( "value" );
+      if ($(this).hasClass('active')) {
+        $(this).removeClass('active');
+        $(this).addClass('inactive');
+      }
+      else {
+        $(this).removeClass('inactive');
+        $(this).addClass('active');
+      }
+        update(comp, pop, trans, sec, price);
+      
+    });
+    
+
+    
+    
+  });
+  </script> -->
+
+<style>
+h1, p {
+  font-family: 'georgia';
+}
+
+.source {
+  text-align: right;
+
+}
+    div.tooltip {
+      visibility: hidden;
+      font-size: 8;
+      position: absolute;
+      opacity: .95;
+    }
+</style>
+
+  <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> -->
+
+</body>
+</html>
